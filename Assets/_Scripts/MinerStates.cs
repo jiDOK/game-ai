@@ -21,11 +21,11 @@ public class EnterMineAndDigForNugget : State<Miner>
     Dig(owner);
     if (owner.goldCarried > 2)
     {
-      owner.ChangeState(owner.visitBankAndDepositGold);
+      owner.fsm.ChangeState(owner.visitBankAndDepositGold);
     }
     else if (owner.thirst > 1)
     {
-      owner.ChangeState(owner.quenchThirst);
+      owner.fsm.ChangeState(owner.quenchThirst);
     }
   }
 
@@ -71,7 +71,7 @@ public class QuenchThirst : State<Miner>
     if (owner.thirst == 0)
     {
       Debug.Log("My thirst is quenched, back to work!");
-      owner.ChangeState(owner.enterMineAndDigForNugget);
+      owner.fsm.ChangeState(owner.enterMineAndDigForNugget);
     }
   }
 
@@ -101,12 +101,12 @@ public class VisitBankAndDepositGold : State<Miner>
     {
       owner.daySuccess = 0;
       Debug.Log("Enough for today, going home");
-      owner.ChangeState(owner.goHomeAndSleepTilRested);
+      owner.fsm.ChangeState(owner.goHomeAndSleepTilRested);
     }
     else
     {
       Debug.Log("Got to find more, back to work!");
-      owner.ChangeState(owner.enterMineAndDigForNugget);
+      owner.fsm.ChangeState(owner.enterMineAndDigForNugget);
     }
   }
 
@@ -136,19 +136,44 @@ public class GoHomeAndSleepTilRested : State<Miner>
     {
       timer = 0;
       Debug.Log("Good Morning! I am going to the mine");
-      owner.ChangeState(owner.enterMineAndDigForNugget);
+      owner.fsm.ChangeState(owner.enterMineAndDigForNugget);
     }
+  }
+}
+
+public class SingAndRevert : State<Miner>
+{
+  public override void OnStateEnter(Miner owner)
+  {
+    string line = Random.value > 0.5f ? 
+      "I am Gold Miner and I'm OK, I sleep all night and I work all day" : 
+      "I am Gold Miner and I'm allright, I work all day and I sleep all night";
+    Debug.Log(line);
+    owner.fsm.RevertToPreviousState();
+  }
+
+  public override void Execute(Miner owner)
+  {
   }
 }
 
 public class AnyState : State<Miner>
 {
+  float singigTimer = 10f;
+
   public override void Execute(Miner owner)
   {
-    if (owner.fatigue > 10)
+    singigTimer -= Time.deltaTime;
+    if (singigTimer <= 0)
+    {
+      singigTimer = Random.Range(8f, 20f);
+      owner.fsm.ChangeState(owner.sing);
+    }
+
+    else if (owner.fatigue > 10)
     {
       Debug.Log("Yawwn, I'm too tired, going home for today");
-      owner.ChangeState(owner.goHomeAndSleepTilRested);
+      owner.fsm.ChangeState(owner.goHomeAndSleepTilRested);
     }
   }
 }

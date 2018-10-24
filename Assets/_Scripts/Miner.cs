@@ -3,11 +3,12 @@
 public class Miner : MonoBehaviour
 {
   public enum Location { Mine, Bank, Home, Saloon }
-  State<Miner> currentState;
+  public StateMachine<Miner> fsm { get; private set; }
   public State<Miner> enterMineAndDigForNugget { get; } = new EnterMineAndDigForNugget();
   public State<Miner> quenchThirst { get; } = new QuenchThirst();
   public State<Miner> visitBankAndDepositGold { get; } = new VisitBankAndDepositGold();
   public State<Miner> goHomeAndSleepTilRested { get; } = new GoHomeAndSleepTilRested();
+  public State<Miner> sing { get; } = new SingAndRevert();
   public State<Miner> anyState { get; } = new AnyState();
   public Location currentLocation { get; set; }
   public int goldCarried { get; set; }
@@ -17,22 +18,13 @@ public class Miner : MonoBehaviour
   public int thirst { get; set; }
   public float restingTime { get; set; }
 
-  void Start()
+  private void Start()
   {
-    ChangeState(enterMineAndDigForNugget);
+    fsm = new StateMachine<Miner>(this, enterMineAndDigForNugget, anyState);
   }
 
   void Update()
   {
-    currentState?.Execute(this);
-    anyState.Execute(this);
-  }
-
-
-  public void ChangeState(State<Miner> state)
-  {
-    currentState?.OnStateExit(this);
-    currentState = state;
-    currentState.OnStateEnter(this);
+    fsm.Update();
   }
 }
