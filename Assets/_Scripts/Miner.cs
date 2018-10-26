@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class Miner : MonoBehaviour
+public class Miner : BaseGameEntity
 {
   public enum Location { Mine, Bank, Home, Saloon }
   public StateMachine<Miner> fsm { get; private set; }
@@ -18,13 +18,18 @@ public class Miner : MonoBehaviour
   public int thirst { get; set; }
   public float restingTime { get; set; }
 
-  private void Start()
+  void Start()
   {
-    fsm = new StateMachine<Miner>(this, enterMineAndDigForNugget, anyState);
+    fsm = new StateMachine<Miner>(this, goHomeAndSleepTilRested, anyState);
   }
 
   void Update()
   {
     fsm.Update();
+  }
+
+  public override bool HandleMessage(Telegram telegram)
+  {
+    return fsm.HandleMessage(telegram);
   }
 }

@@ -36,4 +36,17 @@
   {
     return state.GetType() == currentState.GetType();
   }
+
+  public bool HandleMessage(Telegram telegram)
+  {
+    if(currentState.OnMessage(owner, telegram))
+    {
+      return true;
+    }
+    if(anyState.OnMessage(owner, telegram))
+    {
+      return true;
+    }
+    return false;
+  }
 }

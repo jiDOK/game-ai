@@ -132,12 +132,29 @@ public class GoHomeAndSleepTilRested : State<Miner>
   public override void Execute(Miner owner)
   {
     timer += Time.deltaTime;
-    if (timer > 3f)
+    if (timer > 30f)
     {
       timer = 0;
       Debug.Log("Good Morning! I am going to the mine");
       owner.fsm.ChangeState(owner.enterMineAndDigForNugget);
     }
+  }
+
+  public override bool OnMessage(Miner receiver, Telegram telegram)
+  {
+    if(telegram.messageType == Msg.GoldRush)
+    {
+      timer = 0;
+      Debug.Log("Wowiee! Gold Rush!! Gotta go!");
+      receiver.fsm.ChangeState(receiver.enterMineAndDigForNugget);
+      return true;
+    }
+    if(telegram.messageType == Msg.Greeting)
+    {
+      Debug.Log("Yawn, hello there, " + ((GreetingInfo)telegram.info).nickName);
+      return true;
+    }
+    return false;
   }
 }
 
@@ -159,21 +176,21 @@ public class SingAndRevert : State<Miner>
 
 public class AnyState : State<Miner>
 {
-  float singigTimer = 10f;
+  float singingTimer = 10f;
 
   public override void Execute(Miner owner)
   {
-    singigTimer -= Time.deltaTime;
-    if (singigTimer <= 0)
-    {
-      singigTimer = Random.Range(8f, 20f);
-      owner.fsm.ChangeState(owner.sing);
-    }
+    //singingTimer -= Time.deltaTime;
+    //if (singingTimer <= 0)
+    //{
+    //  singingTimer = Random.Range(8f, 20f);
+    //  owner.fsm.ChangeState(owner.sing);
+    //}
 
-    else if (owner.fatigue > 10)
-    {
-      Debug.Log("Yawwn, I'm too tired, going home for today");
-      owner.fsm.ChangeState(owner.goHomeAndSleepTilRested);
-    }
+    //else if (owner.fatigue > 10)
+    //{
+    //  Debug.Log("Yawwn, I'm too tired, going home for today");
+    //  owner.fsm.ChangeState(owner.goHomeAndSleepTilRested);
+    //}
   }
 }
